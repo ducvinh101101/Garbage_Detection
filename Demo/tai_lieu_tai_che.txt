@@ -1,0 +1,139 @@
+DATASET: PHÂN LOẠI & TÁI CHẾ NHỰA (1–7)
+♻️ Nhựa số 1 (PET – Polyethylene Terephthalate)
+Vật dụng phổ biến: Chai nước suối, chai nước ngọt, chai dầu ăn
+Tái chế: Rất cao
+Cách xử lý: Đổ hết chất lỏng, rửa sạch, bóp bẹp, vặn nắp lại
+Lưu ý: Không tái sử dụng nhiều lần (dễ thôi nhiễm hóa chất)
+Địa điểm thu gom: Trạm GreenHub – 12 An Dương, Hà Nội
+♻️ Nhựa số 2 (HDPE – High-Density Polyethylene)
+Vật dụng phổ biến: Chai dầu gội, sữa tắm, can nhựa, chai sữa
+Tái chế: Rất cao
+Cách xử lý: Rửa sạch hóa chất bên trong, để ráo nước
+Lưu ý: Có thể tái sử dụng nhưng cần vệ sinh kỹ
+Địa điểm thu gom: Trạm VECA – 45 Nguyễn Văn Cừ, TP.HCM
+♻️ Nhựa số 3 (PVC – Polyvinyl Chloride)
+Vật dụng phổ biến: Ống nước, màng bọc thực phẩm, vật liệu xây dựng
+Tái chế: Thấp (khó xử lý)
+Cách xử lý: Không tự đốt, phân loại riêng, đưa đến điểm chuyên xử lý
+Lưu ý: Có thể sinh khí độc (dioxin) khi đốt
+Địa điểm thu gom: Trung tâm xử lý rác URENCO – Hà Nội
+♻️ Nhựa số 4 (LDPE – Low-Density Polyethylene)
+Vật dụng phổ biến: Túi nilon, bao bì mềm, túi đựng thực phẩm
+Tái chế: Trung bình
+Cách xử lý: Giũ sạch, gom riêng túi khô, không lẫn rác hữu cơ
+Lưu ý: Hạn chế sử dụng vì khó phân hủy
+Địa điểm thu gom: Điểm thu gom Zero Waste Vietnam – Hà Nội
+♻️ Nhựa số 5 (PP – Polypropylene)
+Vật dụng phổ biến: Hộp cơm nhựa, ly trà sữa, nắp chai
+Tái chế: Cao
+Cách xử lý: Rửa sạch dầu mỡ, để khô hoàn toàn
+Lưu ý: An toàn hơn khi tái sử dụng so với PET
+Địa điểm thu gom: Trạm GreenHub – Hà Nội
+♻️ Nhựa số 6 (PS – Polystyrene)
+Vật dụng phổ biến: Hộp xốp, ly xốp, khay đựng thực phẩm
+Tái chế: Rất thấp
+Cách xử lý: Hạn chế dùng, không đốt, thu gom riêng
+Lưu ý: Dễ gây ô nhiễm vi nhựa
+Địa điểm thu gom: Trung tâm xử lý rác URENCO
+♻️ Nhựa số 7 (Other – Nhựa hỗn hợp)
+Vật dụng phổ biến: Bình nước thể thao, nhựa PC, sản phẩm composite
+Tái chế: Rất thấp / khó
+Cách xử lý: Phân loại riêng, đưa đến cơ sở chuyên xử lý
+Lưu ý: Có thể chứa BPA (ảnh hưởng sức khỏe)
+Địa điểm thu gom: Cơ sở xử lý đặc biệt – Hà Nội
+⚖️ DATASET: LUẬT & QUY ĐỊNH TÁI CHẾ RÁC VIỆT NAM
+📜 Luật Bảo vệ môi trường 2020
+Tên luật: Luật Bảo vệ môi trường 2020
+Nội dung chính: Bắt buộc phân loại rác tại nguồn
+Áp dụng: Toàn quốc
+Hiệu lực: 01/01/2022
+📜 Quy định phân loại rác tại nguồn
+Nhóm rác:
+Rác tái chế (nhựa, giấy, kim loại)
+Rác hữu cơ
+Rác còn lại
+Yêu cầu: Người dân phải phân loại trước khi thu gom
+📜 Cơ chế EPR (Extended Producer Responsibility)
+Tên: Trách nhiệm mở rộng của nhà sản xuất
+Áp dụng: Doanh nghiệp sản xuất bao bì, nhựa
+Yêu cầu: Phải tái chế hoặc đóng phí xử lý
+📜 Mức phạt vi phạm (tham khảo)
+Không phân loại rác: Phạt ~500.000 – 1.000.000 VNĐ
+Xả rác bừa bãi: Phạt đến 7.000.000 VNĐ
+Căn cứ: Nghị định 45/2022/NĐ-CP
+DATASET: LUẬT & XỬ PHẠT MÔI TRƯỜNG VIỆT NAM (2020–2025)
+📜 1. Luật khung
+🟢 Luật Bảo vệ môi trường 2020
+type: law
+scope: toàn quốc
+effective_date: 01/01/2022
+core_rules:
+Bắt buộc phân loại rác tại nguồn
+Khuyến khích tái chế và tái sử dụng
+Áp dụng cơ chế EPR (trách nhiệm nhà sản xuất)
+ai_note: Đây là luật nền → dùng làm root knowledge trong RAG
+📜 2. Phân loại rác tại nguồn
+🟢 Quy định phân loại rác sinh hoạt
+type: regulation
+based_on: Luật BVMT 2020
+categories:
+recyclable: nhựa, giấy, kim loại
+organic: rác hữu cơ
+other: rác còn lại
+requirement: người dân phải phân loại trước khi thu gom
+ai_note: mapping trực tiếp với output model phân loại ảnh
+📜 3. Cơ chế tái chế bắt buộc (EPR)
+🟢 Trách nhiệm mở rộng của nhà sản xuất (EPR)
+type: policy
+applies_to: doanh nghiệp sản xuất bao bì, nhựa
+obligation:
+tự tổ chức tái chế
+hoặc đóng phí vào quỹ môi trường
+timeline: áp dụng từ 2024 trở đi
+ai_note: dùng để giải thích “vì sao phải tái chế”
+📜 4. Xử phạt hành chính
+🔴 Nghị định 45/2022/NĐ-CP
+type: penalty_law
+effective_date: 25/08/2022
+🔸 Không phân loại rác tại nguồn
+violation: không phân loại rác sinh hoạt
+fine: 500.000 – 1.000.000 VNĐ
+applies_to: cá nhân/hộ gia đình
+ai_note: rule mapping → “user_action → penalty”
+🔸 Xả rác nơi công cộng
+violation: vứt rác không đúng nơi quy định
+fine: 3.000.000 – 7.000.000 VNĐ
+example: vứt chai nhựa ra đường
+ai_note: useful cho chatbot cảnh báo
+🔸 Đổ rác sai quy định (khối lượng lớn)
+violation: đổ rác thải không đúng nơi quy định
+fine: lên đến 20.000.000 VNĐ
+applies_to: cá nhân/tổ chức
+ai_note: severity classification
+🔸 Đốt rác trái phép
+violation: đốt rác sinh hoạt gây ô nhiễm
+fine: 2.000.000 – 5.000.000 VNĐ
+risk: phát sinh khí độc (đặc biệt với nhựa PVC, PS)
+ai_note: liên kết với loại nhựa nguy hiểm
+📜 5. Quy định thu phí rác thải (Pay-as-you-throw)
+🟢 Cơ chế tính phí theo lượng rác
+type: policy
+description: người dân trả phí dựa trên lượng rác thải
+status: đang triển khai tại một số đô thị
+ai_note: dùng cho recommendation system
+📜 6. Quy định về doanh nghiệp & sản xuất
+🟢 Trách nhiệm xử lý bao bì nhựa
+type: regulation
+applies_to: doanh nghiệp sản xuất/nhập khẩu
+requirement:
+thu hồi bao bì
+tái chế theo tỷ lệ quy định
+ai_note: dùng cho B2B AI hoặc ESG analysis
+📜 7. Cấm và hạn chế nhựa dùng một lần
+🟢 Chính sách giảm nhựa dùng một lần
+type: policy
+target:
+siêu thị
+trung tâm thương mại
+goal: giảm túi nilon khó phân hủy đến 2025
+ai_note: dùng để generate recommendation

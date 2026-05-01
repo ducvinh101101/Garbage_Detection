@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trợ lý Tái chế AI</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+    <div class="background-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+    </div>
+
+    <!-- Modal cho API Key -->
+    <div id="api-key-modal" class="modal">
+        <div class="modal-content glass-panel">
+            <h2><i class="fa-solid fa-key"></i> Cấu hình Hệ thống</h2>
+            <p>Vui lòng nhập Google Gemini API Key để bắt đầu sử dụng Chatbot.</p>
+            <input type="password" id="api-key-input" placeholder="Nhập API Key của bạn...">
+            <button id="save-api-key"><i class="fa-solid fa-check"></i> Lưu cấu hình</button>
+        </div>
+    </div>
+
+    <div class="app-container glass-panel">
+        <header class="app-header">
+            <div class="header-title">
+                <div class="icon-container">
+                    <i class="fa-solid fa-recycle"></i>
+                </div>
+                <div>
+                    <h1>EcoBot AI</h1>
+                    <span class="status"><span class="pulse"></span> Sẵn sàng phân tích</span>
+                </div>
+            </div>
+            <button id="settings-btn" title="Cài đặt API Key"><i class="fa-solid fa-gear"></i></button>
+        </header>
+
+        <main class="chat-container" id="chat-box">
+            <!-- Lời chào ban đầu -->
+            <div class="message-wrapper assistant">
+                <div class="avatar"><i class="fa-solid fa-robot"></i></div>
+                <div class="message-content">
+                    Xin chào! Tôi là Trợ lý Tái chế Thông minh. Bạn có thể hỏi tôi bất cứ điều gì về:
+                    <ul>
+                        <li>Cách phân loại rác thải.</li>
+                        <li>Quy trình tái chế nhựa, kim loại, giấy.</li>
+                        <li>Quy định pháp luật môi trường tại Việt Nam.</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <div class="typing-indicator hidden" id="typing-indicator">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <footer class="input-area">
+            <!-- Khu vực preview ảnh -->
+            <div id="image-preview-container" class="hidden">
+                <img id="image-preview" src="" alt="Preview">
+                <button id="remove-image-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="input-wrapper">
+                <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                <button id="upload-btn" title="Tải ảnh lên"><i class="fa-solid fa-image"></i></button>
+                <input type="text" id="user-input" placeholder="Ví dụ: Cách xử lý chai nhựa HDPE thế nào?" autocomplete="off">
+                <button id="send-btn"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

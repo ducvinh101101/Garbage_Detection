@@ -1,0 +1,83 @@
+version: '3.9'
+services:
+  # 1. CORE BACKEND (Spring Boot)
+  spring-boot-app:
+    build: ./backend
+    ports: ["8080:8080"]
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/recycledb
+      - SPRING_DATASOURCE_USERNAME=recycle_user
+      - SPRING_DATASOURCE_PASSWORD=recycle_pass
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - AI_SERVICE_URL=http://fastapi-ai:8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+
+  # 2. AI SERVICES (FastAPI)
+  fastapi-ai:
+    build: ./ai-services
+    ports: 
+      - "8001:8001" # YOLO
+      - "8002:8002" # ResNet
+      - "8003:8003" # RAG
+    volumes:
+      - ./ai-services/models:/app/models
+      - ./yolov8n.pt:/app/yolov8n.pt
+    environment:
+      - YOLO_MODEL=/app/yolov8n.pt
+
+  # 3. DATABASE (PostgreSQL)
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: recycledb
+      POSTGRES_USER: recycle_user
+      POSTGRES_PASSWORD: recycle_pass
+    ports: ["5432:5432"]
+    volumes: 
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U recycle_user -d recycledb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 4. MESSAGE QUEUE (Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports: ["9092:9092"]
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # 5. AUTOMATION (n8n)
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    ports: ["5678:5678"]
+    environment:
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://localhost:5678/
+      - GENERIC_TIMEZONE=Asia/Ho_Chi_Minh
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  postgres_data:
+  n8n_data:
