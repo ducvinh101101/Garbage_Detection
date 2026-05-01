@@ -33,10 +33,10 @@ def preprocess_image(img):
 
 
 yolo_model = YOLO("runs11s_50/detect/train/weights/best.pt")
-cls_model = load_model("garbage_vgg16_model.h5")
+cls_model = load_model("garbage_classifier_vgg16.keras")
 
-CLASS_NAMES = {0: "battery", 1: "biological", 2: "cardboard", 3: "clothes", 4: "glass", 5: "metal", 6: "paper", 7: "plastic", 8: "shoes", 9: "trash"}
-
+# CLASS_NAMES = {0: "battery", 1: "biological", 2: "cardboard", 3: "clothes", 4: "glass", 5: "metal", 6: "paper", 7: "plastic", 8: "shoes", 9: "trash"}
+CLASS_NAMES ={0:"cardboard", 1:"e-waste", 2:"glass", 3:"medical", 4:"metal", 5:"paper", 6:"plastic"}
 track_history = defaultdict(list)
 final_predictions = {}
 
