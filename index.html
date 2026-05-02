@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fruit Vision AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Sora:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0f0d;
+      --surface: #111a14;
+      --surface2: #182019;
+      --border: #253028;
+      --accent: #4eff8a;
+      --accent2: #a8ff78;
+      --accent-dim: rgba(78,255,138,0.12);
+      --accent-glow: rgba(78,255,138,0.3);
+      --text: #e8f5ec;
+      --muted: #6b8870;
+      --danger: #ff6b6b;
+      --warning: #ffd166;
+      --radius: 16px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999; opacity: .4;
+    }
+
+    /* ── Ambient blobs ── */
+    .blob {
+      position: fixed; border-radius: 50%;
+      filter: blur(120px); pointer-events: none; z-index: 0;
+    }
+    .blob-1 { width: 500px; height: 500px; background: rgba(78,255,138,.06); top: -150px; right: -100px; animation: drift 18s ease-in-out infinite; }
+    .blob-2 { width: 350px; height: 350px; background: rgba(168,255,120,.04); bottom: -80px; left: -80px; animation: drift 24s ease-in-out infinite reverse; }
+    @keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(30px,-40px) scale(1.08)} }
+
+    /* ── Layout ── */
+    .container {
+      position: relative; z-index: 1;
+      max-width: 960px; margin: 0 auto;
+      padding: 60px 24px 100px;
+    }
+
+    /* ── Header ── */
+    header { text-align: center; margin-bottom: 60px; }
+    .logo-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-dim); border: 1px solid var(--border);
+      border-radius: 100px; padding: 6px 18px;
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      color: var(--accent); letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+    .logo-badge span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+
+    h1 {
+      font-family: 'Clash Display', sans-serif;
+      font-size: clamp(42px, 7vw, 80px);
+      font-weight: 700; line-height: .95;
+      letter-spacing: -2px;
+      background: linear-gradient(135deg, #e8f5ec 0%, var(--accent) 60%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      margin-top: 16px; font-size: 15px;
+      color: var(--muted); font-weight: 300; letter-spacing: .3px;
+    }
+
+    /* ── Drop zone ── */
+    .dropzone {
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 60px 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .25s, background .25s, box-shadow .25s;
+      position: relative; overflow: hidden;
+    }
+    .dropzone::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, var(--accent-dim) 0%, transparent 70%);
+      opacity: 0; transition: opacity .3s;
+    }
+    .dropzone:hover, .dropzone.drag-over {
+      border-color: var(--accent);
+      background: var(--surface2);
+      box-shadow: 0 0 40px var(--accent-glow), inset 0 1px 0 rgba(78,255,138,.1);
+    }
+    .dropzone:hover::after, .dropzone.drag-over::after { opacity: 1; }
+    .drop-icon {
+      font-size: 52px; margin-bottom: 16px;
+      display: block; filter: grayscale(30%);
+      transition: transform .3s;
+    }
+    .dropzone:hover .drop-icon { transform: scale(1.1) rotate(-5deg); }
+    .drop-label {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 20px; font-weight: 600;
+      color: var(--text); margin-bottom: 8px;
+    }
+    .drop-sub { font-size: 13px; color: var(--muted); }
+    #fileInput { display: none; }
+
+    /* ── Preview & btn row ── */
+    .preview-row {
+      display: none; align-items: center; gap: 20px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 16px 20px;
+      margin-top: 16px; animation: slideUp .35s ease;
+    }
+    .preview-row.visible { display: flex; }
+    @keyframes slideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+    .preview-thumb {
+      width: 72px; height: 72px; border-radius: 10px;
+      object-fit: cover; border: 1px solid var(--border);
+    }
+    .preview-meta { flex: 1; }
+    .preview-name { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--text); }
+    .preview-size { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #0a0f0d;
+      border: none; border-radius: 10px; padding: 12px 26px;
+      font-family: 'Clash Display', sans-serif; font-size: 15px;
+      font-weight: 600; cursor: pointer; letter-spacing: .3px;
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .btn:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 8px 30px var(--accent-glow); }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-ghost {
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface2); color: var(--text); box-shadow: none; }
+
+    .action-row {
+      display: flex; gap: 12px; margin-top: 20px;
+      justify-content: flex-end;
+    }
+
+    /* ── Spinner ── */
+    .spinner-wrap {
+      display: none; flex-direction: column; align-items: center;
+      gap: 20px; padding: 48px; text-align: center;
+    }
+    .spinner-wrap.active { display: flex; }
+    .spinner {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 2.5px solid var(--border);
+      border-top-color: var(--accent);
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .spinner-text { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--muted); }
+
+    /* ── Results ── */
+    .results {
+      display: none; margin-top: 36px;
+      animation: slideUp .4s ease;
+    }
+    .results.visible { display: block; }
+    .results-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+    }
+
+    /* ── Image card ── */
+    .img-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden;
+    }
+    .img-card img {
+      width: 100%; aspect-ratio: 1/1;
+      object-fit: cover; display: block;
+    }
+    .img-label {
+      padding: 12px 16px;
+      font-family: 'DM Mono', monospace; font-size: 11px;
+      color: var(--muted); letter-spacing: 1.5px; text-transform: uppercase;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Info panel ── */
+    .info-panel { display: flex; flex-direction: column; gap: 16px; }
+
+    .result-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px;
+    }
+    .result-card.highlight {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 8px 32px rgba(78,255,138,.12);
+    }
+    .card-tag {
+      font-family: 'DM Mono', monospace; font-size: 10px;
+      color: var(--muted); letter-spacing: 2px; text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .pred-name {
+      font-family: 'Clash Display', sans-serif;
+      font-size: 32px; font-weight: 700;
+      color: var(--accent); line-height: 1;
+      margin-bottom: 4px;
+    }
+    .pred-conf { font-size: 13px; color: var(--muted); }
+
+    /* ── Confidence bar ── */
+    .conf-bar-wrap { margin-top: 14px; }
+    .conf-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 12px; color: var(--muted); margin-bottom: 6px;
+      font-family: 'DM Mono', monospace;
+    }
+    .conf-bar-track {
+      height: 6px; background: var(--border); border-radius: 100px; overflow: hidden;
+    }
+    .conf-bar-fill {
+      height: 100%; border-radius: 100px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transition: width 1s cubic-bezier(.22,.61,.36,1);
+    }
+
+    /* ── Top-3 ── */
+    .top3-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .top3-item {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .top3-rank {
+      width: 20px; font-family: 'DM Mono', monospace;
+      font-size: 10px; color: var(--muted); flex-shrink: 0;
+    }
+    .top3-name { font-size: 13px; flex: 1; }
+    .top3-pct {
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      color: var(--muted); min-width: 50px; text-align: right;
+    }
+    .top3-bar { flex: 2; }
+    .top3-bar-track { height: 4px; background: var(--border); border-radius: 100px; overflow: hidden; }
+    .top3-bar-fill { height: 100%; border-radius: 100px; background: var(--accent); transition: width .8s ease; }
+
+    /* ── Agreement badge ── */
+    .agreement-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 100px;
+      font-size: 12px; font-family: 'DM Mono', monospace;
+      font-weight: 500; letter-spacing: .5px;
+    }
+    .agreement-badge.yes {
+      background: rgba(78,255,138,.1); border: 1px solid rgba(78,255,138,.3); color: var(--accent);
+    }
+    .agreement-badge.no {
+      background: rgba(255,107,107,.1); border: 1px solid rgba(255,107,107,.3); color: var(--danger);
+    }
+
+    /* ── Error state ── */
+    .error-box {
+      display: none; background: rgba(255,107,107,.07);
+      border: 1px solid rgba(255,107,107,.25); border-radius: var(--radius);
+      padding: 20px 24px; margin-top: 20px;
+      font-size: 14px; color: var(--danger);
+    }
+    .error-box.visible { display: block; animation: slideUp .3s ease; }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; margin-top: 80px;
+      font-size: 12px; color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 640px) {
+      .results-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<div class="container">
+  <header>
+    <div class="logo-badge"><span></span> AI · Vision · Fruits</div>
+    <h1>Fruit<br/>Vision</h1>
+    <p class="subtitle">Nhận diện trái cây với MobileNet + SVM — upload ảnh, nhận kết quả ngay.</p>
+  </header>
+
+  <!-- Drop zone -->
+  <div class="dropzone" id="dropzone">
+    <span class="drop-icon">🍊</span>
+    <div class="drop-label">Kéo ảnh vào đây hoặc click để chọn</div>
+    <div class="drop-sub">PNG, JPG, WEBP · tối đa 10 MB</div>
+    <input type="file" id="fileInput" accept="image/*"/>
+  </div>
+
+  <!-- Preview row -->
+  <div class="preview-row" id="previewRow">
+    <img class="preview-thumb" id="previewThumb" src="" alt="preview"/>
+    <div class="preview-meta">
+      <div class="preview-name" id="previewName"></div>
+      <div class="preview-size" id="previewSize"></div>
+    </div>
+  </div>
+
+  <!-- Action row -->
+  <div class="action-row" id="actionRow" style="display:none;">
+    <button class="btn btn-ghost" id="clearBtn">✕ Xóa</button>
+    <button class="btn" id="predictBtn">🔍 Dự đoán</button>
+  </div>
+
+  <!-- Spinner -->
+  <div class="spinner-wrap" id="spinnerWrap">
+    <div class="spinner"></div>
+    <div class="spinner-text">Đang phân tích ảnh…</div>
+  </div>
+
+  <!-- Error -->
+  <div class="error-box" id="errorBox"></div>
+
+  <!-- Results -->
+  <div class="results" id="results">
+    <div class="results-grid">
+      <div class="img-card">
+        <img id="resultImg" src="" alt="result"/>
+        <div class="img-label">Ảnh đầu vào</div>
+      </div>
+      <div class="info-panel">
+        <!-- DL card -->
+        <div class="result-card highlight" id="dlCard">
+          <div class="card-tag">🤖 Deep Learning — MobileNet Softmax</div>
+          <div class="pred-name" id="dlClass">—</div>
+          <div class="pred-conf" id="dlConf"></div>
+          <div class="conf-bar-wrap">
+            <div class="conf-bar-label">
+              <span>Độ tự tin</span>
+              <span id="dlConfPct"></span>
+            </div>
+            <div class="conf-bar-track"><div class="conf-bar-fill" id="dlBar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <!-- SVM card -->
+        <div class="result-card" id="svmCard">
+          <div class="card-tag">⚙️ Kết hợp — MobileNet + SVM</div>
+          <div class="pred-name" id="svmClass">—</div>
+          <div style="margin-top:10px" id="agreementWrap"></div>
+        </div>
+
+        <!-- Top-3 -->
+        <div class="result-card">
+          <div class="card-tag">📊 Top 3 dự đoán (Softmax)</div>
+          <div class="top3-list" id="top3List"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>fruit-vision-ai · powered by MobileNet & SVM</footer>
+</div>
+
+<script>
+  const API = "http://localhost:5000";
+
+  const dropzone   = document.getElementById("dropzone");
+  const fileInput  = document.getElementById("fileInput");
+  const previewRow = document.getElementById("previewRow");
+  const previewThumb = document.getElementById("previewThumb");
+  const previewName  = document.getElementById("previewName");
+  const previewSize  = document.getElementById("previewSize");
+  const actionRow  = document.getElementById("actionRow");
+  const clearBtn   = document.getElementById("clearBtn");
+  const predictBtn = document.getElementById("predictBtn");
+  const spinnerWrap= document.getElementById("spinnerWrap");
+  const errorBox   = document.getElementById("errorBox");
+  const results    = document.getElementById("results");
+
+  let selectedFile = null;
+
+  // Drag-and-drop
+  dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("drag-over"); });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag-over"));
+  dropzone.addEventListener("drop", e => {
+    e.preventDefault(); dropzone.classList.remove("drag-over");
+    const f = e.dataTransfer.files[0];
+    if (f && f.type.startsWith("image/")) setFile(f);
+  });
+  dropzone.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", () => { if (fileInput.files[0]) setFile(fileInput.files[0]); });
+
+  function setFile(f) {
+    selectedFile = f;
+    const url = URL.createObjectURL(f);
+    previewThumb.src = url;
+    previewName.textContent = f.name;
+    previewSize.textContent = (f.size / 1024).toFixed(1) + " KB";
+    previewRow.classList.add("visible");
+    actionRow.style.display = "flex";
+    hideResults();
+  }
+
+  clearBtn.addEventListener("click", () => {
+    selectedFile = null; fileInput.value = "";
+    previewRow.classList.remove("visible");
+    actionRow.style.display = "none";
+    hideResults();
+  });
+
+  predictBtn.addEventListener("click", predict);
+
+  async function predict() {
+    if (!selectedFile) return;
+    hideResults();
+    setLoading(true);
+
+    const fd = new FormData();
+    fd.append("image", selectedFile);
+
+    try {
+      const res = await fetch(`${API}/predict`, { method: "POST", body: fd });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Lỗi từ server");
+      }
+      const data = await res.json();
+      showResults(data);
+    } catch (e) {
+      showError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function setLoading(on) {
+    spinnerWrap.classList.toggle("active", on);
+    predictBtn.disabled = on;
+  }
+
+  function hideResults() {
+    results.classList.remove("visible");
+    errorBox.classList.remove("visible");
+  }
+
+  function showError(msg) {
+    errorBox.textContent = "⚠ " + msg;
+    errorBox.classList.add("visible");
+  }
+
+  function showResults(data) {
+    // Image
+    document.getElementById("resultImg").src =
+      `data:${data.image_mime};base64,${data.image_base64}`;
+
+    // DL
+    const dl = data.dl_prediction;
+    document.getElementById("dlClass").textContent = dl.class;
+    document.getElementById("dlConf").textContent = `Độ tự tin: ${dl.confidence.toFixed(2)}%`;
+    document.getElementById("dlConfPct").textContent = dl.confidence.toFixed(1) + "%";
+    setTimeout(() => {
+      document.getElementById("dlBar").style.width = dl.confidence + "%";
+    }, 100);
+
+    // SVM
+    document.getElementById("svmClass").textContent = data.svm_prediction.class;
+    const agWrap = document.getElementById("agreementWrap");
+    agWrap.innerHTML = data.agreement
+      ? `<span class="agreement-badge yes">✓ Hai mô hình đồng thuận</span>`
+      : `<span class="agreement-badge no">✗ Kết quả khác nhau</span>`;
+
+    // Top-3
+    const list = document.getElementById("top3List");
+    list.innerHTML = "";
+    const maxConf = dl.top3[0].confidence;
+    dl.top3.forEach((item, i) => {
+      const div = document.createElement("div");
+      div.className = "top3-item";
+      div.innerHTML = `
+        <div class="top3-rank">#${i+1}</div>
+        <div class="top3-name">${item.label}</div>
+        <div class="top3-bar">
+          <div class="top3-bar-track">
+            <div class="top3-bar-fill" style="width:0%" data-w="${(item.confidence/maxConf*100).toFixed(1)}"></div>
+          </div>
+        </div>
+        <div class="top3-pct">${item.confidence.toFixed(1)}%</div>
+      `;
+      list.appendChild(div);
+    });
+    setTimeout(() => {
+      list.querySelectorAll(".top3-bar-fill").forEach(el => el.style.width = el.dataset.w + "%");
+    }, 120);
+
+    results.classList.add("visible");
+  }
+</script>
+</body>
+</html>
